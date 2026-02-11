@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Подарок 💖</title>
+
+  <style>
+    :root{
+      --bg1:#260026;
+      --bg2:#1a0020;
+      --pink:#ff3fa6;
+      --pink2:#ff86cf;
+      --peach:#ffb26b;
+      --text:#fff6fb;
+      --muted:#ffd1ea;
+      --glass: rgba(255,255,255,0.10);
+      --glass2: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.18);
+      --shadow: rgba(0,0,0,0.55);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body { height:100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      overflow-x:hidden;
+      background:
+        radial-gradient(900px 600px at 18% 12%, rgba(255,63,166,0.26), transparent 60%),
+        radial-gradient(900px 650px at 82% 28%, rgba(255,134,207,0.20), transparent 62%),
+        radial-gradient(900px 650px at 50% 120%, rgba(255,178,107,0.12), transparent 65%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+
+    /* subtle animated sparkles */
+    .sparkles{
+      position:fixed; inset:-50px;
+      pointer-events:none;
+      opacity:.35;
+      background-image:
+        radial-gradient(circle at 10px 10px, rgba(255,255,255,0.65) 0 2px, transparent 3px),
+        radial-gradient(circle at 40px 30px, rgba(255,63,166,0.55) 0 2px, transparent 3px),
+        radial-gradient(circle at 70px 60px, rgba(255,134,207,0.55) 0 1.5px, transparent 3px);
+      background-size: 120px 120px;
+      filter: blur(.3px);
+      animation: drift 14s linear infinite;
+    }
+    @keyframes drift{
+      from{ transform: translateY(0) translateX(0); }
+      to{ transform: translateY(70px) translateX(25px); }
+    }
+
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: clamp(16px, 4vw, 28px);
+      position:relative;
+      z-index:1;
+    }
+
+    .card{
+      width:min(900px, 100%);
+      background: linear-gradient(180deg, var(--glass), var(--glass2));
+      border:1px solid var(--border);
+      border-radius: 26px;
+      padding: clamp(18px, 4vw, 32px);
+      box-shadow: 0 26px 90px var(--shadow);
+      backdrop-filter: blur(14px);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:-90px;
+      background:
+        radial-gradient(520px 240px at 20% 10%, rgba(255,255,255,0.22), transparent 60%),
+        radial-gradient(460px 260px at 85% 18%, rgba(255,63,166,0.18), transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,0.08), transparent 60%);
+      transform: rotate(-6deg);
+      pointer-events:none;
+    }
+
+    .pill{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      padding: 10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.22);
+      background: rgba(255,63,166,0.10);
+      color: var(--muted);
+      font-size: 14px;
+      position:relative;
+      z-index:1;
+    }
+
+    h1{
+      margin: 16px 0 10px;
+      font-size: clamp(28px, 5.2vw, 52px);
+      line-height:1.05;
+      letter-spacing:-0.02em;
+      position:relative;
+      z-index:1;
+      text-shadow: 0 14px 40px rgba(255,63,166,0.18);
+    }
+
+    .subtitle{
+      margin:0 0 14px;
+      color: rgba(255, 220, 240, 0.92);
+      font-size: clamp(14px, 2.2vw, 18px);
+      line-height:1.65;
+      position:relative;
+      z-index:1;
+    }
+
+    .quest{
+      margin-top: 18px;
+      border:1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.18);
+      border-radius: 18px;
+      padding: clamp(14px, 3.5vw, 18px);
+      position:relative;
+      z-index:1;
+    }
+
+    .stepTop{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .counter{
+      font-weight:900;
+      letter-spacing:0.02em;
+      color: rgba(255, 235, 246, 0.96);
+    }
+
+    .progressWrap{
+      flex: 1 1 180px;
+      min-width: 180px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.14);
+      overflow:hidden;
+    }
+    .progressBar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(135deg, var(--pink), var(--pink2), var(--peach));
+      border-radius: 999px;
+      transition: width .35s ease;
+    }
+
+    /* feed (лента подсказок) */
+    .feed{
+      margin-top: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      padding: 12px;
+      max-height: min(54vh, 460px);
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+
+    .msg{
+      padding: 12px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255, 245, 251, 0.97);
+      font-size: clamp(15px, 2.4vw, 18px);
+      line-height: 1.55;
+      opacity: 0;
+      transform: translateY(6px);
+      animation: msgIn .22s ease forwards;
+      word-break: break-word;
+    }
+
+    @keyframes msgIn{
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top: 14px;
+    }
+
+    .btn{
+      appearance:none;
+      border:none;
+      border-radius:16px;
+      padding: 14px 18px;
+      font-weight:950;
+      font-size:16px;
+      color:white;
+      cursor:pointer;
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      box-shadow: 0 16px 35px rgba(255,63,166,0.25);
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease, opacity .12s ease;
+      flex: 1 1 240px;
+      min-width: 240px;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      filter: saturate(1.1) brightness(1.02);
+      box-shadow: 0 20px 45px rgba(255,63,166,0.30);
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .ghost{
+      background: rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.22);
+      box-shadow:none;
+      font-weight:900;
+      flex: 0 1 auto;
+      min-width: 170px;
+    }
+
+    .note{
+      margin-top:10px;
+      font-size: 12.5px;
+      color: rgba(255, 220, 240, 0.76);
+      position:relative;
+      z-index:1;
+    }
+
+    /* confetti */
+    .confetti{
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index:9;
+      overflow:hidden;
+    }
+    .piece{
+      position:absolute;
+      left: var(--x);
+      top: -60px;
+      font-size: var(--s);
+      opacity: var(--o);
+      filter: drop-shadow(0 10px 18px rgba(255,63,166,.22));
+      animation: fall var(--d) linear forwards;
+      transform: translateZ(0);
+      will-change: transform, opacity;
+    }
+    @keyframes fall{
+      to { transform: translateY(112vh) rotate(260deg); opacity: 0; }
+    }
+
+    /* overlay video */
+    .overlay{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 14px;
+      background: rgba(10,0,12,0.86);
+      z-index:10;
+      backdrop-filter: blur(10px);
+    }
+    .overlay.show{ display:flex; }
+
+    .player{
+      width:min(1040px, 100%);
+      border-radius:20px;
+      overflow:hidden;
+      background:#0b0010;
+      border:1px solid rgba(255,255,255,0.16);
+      box-shadow: 0 30px 120px rgba(0,0,0,0.85);
+      position:relative;
+    }
+    .player::before{
+      content:"";
+      position:absolute; inset:-90px;
+      background:
+        radial-gradient(540px 280px at 20% 10%, rgba(255,63,166,0.28), transparent 60%),
+        radial-gradient(480px 280px at 85% 20%, rgba(255,134,207,0.22), transparent 60%);
+      pointer-events:none;
+    }
+    video{
+      width:100%;
+      height:auto;
+      display:block;
+      background:black;
+      position:relative;
+      z-index:1;
+      max-height: 78vh;
+    }
+    .close{
+      position:absolute;
+      top:10px; right:10px;
+      border:none;
+      cursor:pointer;
+      padding:10px 12px;
+      border-radius:14px;
+      color:white;
+      font-weight:950;
+      background: rgba(255,63,166,0.18);
+      border:1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+      z-index:2;
+    }
+    .close:hover{ background: rgba(255,63,166,0.26); }
+
+    @media (max-width: 480px){
+      .pill{ font-size: 13px; padding: 9px 12px; }
+      .btn{ min-width: 100%; flex: 1 1 100%; }
+      .ghost{ min-width: 100%; }
+      .progressWrap{ min-width: 100%; }
+      .stepTop{ gap:12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sparkles"></div>
+  <div class="confetti" id="confetti"></div>
+
+  <div class="wrap">
+    <main class="card">
+      <div class="pill">💗 маленький квест • 15 шагов</div>
+
+      <h1>У меня для тебя сюрприз</h1>
+      <p class="subtitle">
+        Нажимай кнопку — и открывай подсказки одну за другой.
+        В конце будет самое главное 💖
+      </p>
+
+      <section class="quest" aria-label="Квест">
+        <div class="stepTop">
+          <div class="counter" id="counter">Шаг 1 из 15</div>
+          <div class="progressWrap" aria-hidden="true">
+            <div class="progressBar" id="bar"></div>
+          </div>
+        </div>
+
+        <div class="feed" id="feed" aria-live="polite"></div>
+
+        <div class="row">
+          <button class="btn" id="nextBtn">Дальше ✨</button>
+          <button class="btn ghost" id="restartBtn" type="button">Сначала ↺</button>
+        </div>
+
+        <div class="note">Подсказка: всё открывается только по нажатию кнопки.</div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="player">
+      <button class="close" id="closeBtn">✕ Закрыть</button>
+      <video id="video" controls playsinline preload="metadata">
+        <source src="video.mp4" type="video/mp4" />
+        Твой браузер не поддерживает видео.
+      </video>
+    </div>
+  </div>
+
+  <script>
+    // ====== 14 длинных милых напоминаний/пожеланий (подстроено под: красотка/умничка/милая) ======
+    const steps = [
+      "💗 Подсказка №1: если вдруг сегодня ты на секунду усомнишься в себе — пожалуйста, остановись и вспомни: ты правда красотка. Не потому что кто-то так сказал, а потому что в тебе есть тот самый свет, который ощущается даже без слов. Ты очень красивая — и внешне, и внутри.",
+      "🌸 Подсказка №2: напоминание: ты умничка. Ты умеешь думать глубоко, замечать детали, чувствовать людей и принимать правильные решения. И даже когда ты сомневаешься — ты всё равно справляешься сильнее, чем сама про себя думаешь.",
+      "✨ Подсказка №3: мне хочется, чтобы ты чаще ловила момент “мне хорошо”. Не когда всё идеально, а прямо в обычных мелочах: тёплый чай, любимая песня, улыбка, спокойный вечер. Пусть твой день будет мягким и уютным.",
+      "🎀 Подсказка №4: пожелание: пусть рядом с тобой будут люди, которые видят твою милоту и нежность — и берегут это, а не требуют “будь проще” или “будь сильнее”. Ты имеешь право быть нежной. Это не слабость — это красота.",
+      "💞 Подсказка №5: если у тебя бывает ощущение, что ты должна всё успеть и всем быть удобной — нет. Ты никому ничего не должна, кроме заботы о себе. Пусть сегодня ты выберешь себя: чуть больше отдыха, тепла и спокойствия.",
+      "🫶 Подсказка №6: я желаю тебе любви без тревоги. Такой, где тебе не нужно угадывать настроение, бороться за внимание или доказывать ценность. Ты достойна любви, которая приходит с заботой, уважением и нежностью.",
+      "🌷 Подсказка №7: напоминание: ты прекрасна не только в “лучшем состоянии”. Ты красивая и милая даже уставшая, даже без настроения, даже когда молчишь. Ты просто настоящая. И в этом есть что-то очень трогательное.",
+      "💓 Подсказка №8: пусть у тебя будет больше комплиментов, которые не “для галочки”, а от сердца. И пусть ты сама веришь этим словам, потому что они правда. Ты — человек, которым хочется восхищаться.",
+      "✨ Подсказка №9: я очень ценю в тебе то, что ты умеешь быть доброй. Не наивной — а именно доброй. И это редкость. Пусть мир отвечает тебе тем же: мягко, честно и по-настоящему.",
+      "🎁 Подсказка №10: пожелание: пусть этот день принесёт тебе приятные мелочи. Пусть всё складывается легко. Пусть люди будут внимательными. Пусть мысли будут добрыми. Пусть сердце чувствует: “со мной всё хорошо”.",
+      "💗 Подсказка №11: напоминание: ты умничка не только когда “делаешь”. Ты умничка уже потому, что ты есть. Потому что ты растёшь, учишься, чувствуешь, стараешься. И даже если что-то не получается — ты не хуже. Ты всё равно прекрасна.",
+      "🌸 Подсказка №12: я желаю тебе уверенности. Той самой тихой уверенности, когда ты не доказываешь — ты просто знаешь. Знаешь, что ты достойна лучшего. Что ты заслуживаешь заботу. Что тебя можно выбирать каждый день — словами и поступками.",
+      "✨ Подсказка №13: ещё одно тёплое напоминание: ты милая — и это видно во всём: в взгляде, в реакции, в том, как ты разговариваешь, как смеёшься, как заботишься. Это цепляет сильнее любых “идеальных” образов. Ты настоящая — и этим очень трогаешь.",
+      "💞 Подсказка №14: финальное пожелание перед сюрпризом: пусть этот праздник будет для тебя не просто датой, а подтверждением, что ты правда особенная. Красотка. Умничка. Милая. И очень-очень ценная. Готова к финалу?"
+    ];
+
+    // ====== ЭЛЕМЕНТЫ ======
+    const nextBtn = document.getElementById('nextBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const counter = document.getElementById('counter');
+    const bar = document.getElementById('bar');
+    const feed = document.getElementById('feed');
+
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('closeBtn');
+    const video = document.getElementById('video');
+
+    const confetti = document.getElementById('confetti');
+
+    const totalSteps = steps.length + 1; // +1 = видео (итого 15)
+    let current = 1;
+    let i = 0;
+
+    // ====== УТИЛИТЫ ======
+    function setProgress(step){
+      counter.textContent = `Шаг ${step} из ${totalSteps}`;
+      const pct = Math.round(((step - 1) / (totalSteps - 1)) * 100);
+      bar.style.width = pct + "%";
+    }
+
+    function haptic(){
+      if (navigator.vibrate) navigator.vibrate([18, 10, 18]); // чуть выразительнее
+    }
+
+    function appendMessage(t){
+      const el = document.createElement('div');
+      el.className = 'msg';
+      el.textContent = t;
+      feed.appendChild(el);
+
+      requestAnimationFrame(() => {
+        feed.scrollTop = feed.scrollHeight;
+      });
+    }
+
+    // Больше “штучек” при нажатии + мини-залп (две волны)
+    function burstConfetti(power = 1){
+      const icons = ["💗","💖","💞","✨","🎀","🌸","🌷","💕"];
+      const baseN = 42; // было 14 — теперь заметно больше
+      const n = Math.round(baseN * power);
+
+      const makeWave = (count, spreadMs) => {
+        for(let k=0;k<count;k++){
+          const el = document.createElement('div');
+          el.className = 'piece';
+          el.textContent = icons[Math.floor(Math.random()*icons.length)];
+
+          const x = Math.random() * 100;
+          const size = 16 + Math.random() * 22;
+          const dur = 2.2 + Math.random() * 1.6;
+          const op = 0.65 + Math.random() * 0.35;
+
+          el.style.setProperty('--x', x + 'vw');
+          el.style.setProperty('--s', size + 'px');
+          el.style.setProperty('--d', dur + 's');
+          el.style.setProperty('--o', op);
+
+          // рандомная задержка внутри волны (чтобы не падало “стройно”)
+          const delay = Math.random() * spreadMs;
+          el.style.animationDelay = (delay/1000) + "s";
+
+          confetti.appendChild(el);
+          setTimeout(() => el.remove(), (dur * 1000) + spreadMs + 400);
+        }
+      };
+
+      // 1-я волна
+      makeWave(Math.floor(n * 0.65), 180);
+      // 2-я волна чуть позже (ощущается “сильнее”)
+      setTimeout(() => makeWave(Math.ceil(n * 0.55), 260), 110);
+    }
+
+    function openVideo(){
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+
+      video.currentTime = 0;
+      const p = video.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    }
+
+    function closeVideo(){
+      video.pause();
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    function resetQuest(){
+      current = 1;
+      i = 0;
+      setProgress(1);
+
+      feed.innerHTML = "";
+      appendMessage("✨ Нажми «Дальше», чтобы начать.");
+
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = 1;
+      nextBtn.style.cursor = "pointer";
+      nextBtn.textContent = "Дальше ✨";
+    }
+
+    // ====== ОСНОВНАЯ ЛОГИКА ======
+    function nextStep(){
+      haptic();
+      burstConfetti(1.15); // чуть мощнее
+
+      // 14 шагов текста
+      if (i < steps.length){
+        current = i + 1;
+        setProgress(current);
+        appendMessage(steps[i]);
+        i++;
+
+        if (i === steps.length){
+          nextBtn.textContent = "Открыть финал ▶";
+          // на финальном тексте можно сделать ещё чуть мощнее
+          burstConfetti(1.4);
+        }
+        return;
+      }
+
+      // финальный шаг: видео
+      current = totalSteps; // 15
+      setProgress(current);
+      appendMessage("💖 Финал открыт.");
+      burstConfetti(1.6); // на финале прям красиво
+      openVideo();
+
+      nextBtn.disabled = true;
+      nextBtn.style.opacity = 0.7;
+      nextBtn.style.cursor = "default";
+    }
+
+    // ====== СОБЫТИЯ ======
+    nextBtn.addEventListener('click', () => {
+      if (!nextBtn.disabled) nextStep();
+    });
+
+    restartBtn.addEventListener('click', resetQuest);
+
+    closeBtn.addEventListener('click', closeVideo);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeVideo(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeVideo(); });
+
+    // init
+    resetQuest();
+  </script>
+</body>
+</html>
