@@ -192,6 +192,18 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ===== TYPEWRITER CURSOR (NEW) ===== */
+    .msg.typing::after{
+      content: "▍";
+      display: inline-block;
+      margin-left: 6px;
+      opacity: .9;
+      animation: caretBlink .8s steps(1) infinite;
+    }
+    @keyframes caretBlink{
+      50%{ opacity: 0; }
+    }
+
     .row{
       display:flex;
       gap:12px;
@@ -465,7 +477,7 @@
     <main class="card">
       <div class="pill">💗 маленький квест к празднику • всего 15 шагов</div>
 
-      <h1>Просто валентинка</h1>
+      <h1>Просто валентинка для тебя 💖</h1>
       <p class="subtitle">
         Нажимай кнопку — и открывай подсказки одну за другой, эти 14 абзацов помогут сделать твой день лучше. Читай очень внимательно✨
         В конце будет видео 💖
@@ -553,15 +565,52 @@
       if (navigator.vibrate) navigator.vibrate([18, 10, 18]);
     }
 
+    /* ===== TYPEWRITER (NEW) ===== */
+    let isTyping = false;
+
     function appendMessage(t){
       const el = document.createElement('div');
-      el.className = 'msg';
-      el.textContent = t;
+      el.className = 'msg typing';
+      el.textContent = "";
       feed.appendChild(el);
 
-      requestAnimationFrame(() => {
+      const baseDelay = 35;   // скорость печати
+      const longPause = 220;  // пауза после . ! ? и переносов
+
+      // блокируем кнопку пока печатается
+      isTyping = true;
+      nextBtn.disabled = true;
+      nextBtn.style.opacity = 0.75;
+      nextBtn.style.cursor = "default";
+
+      let idx = 0;
+
+      const tick = () => {
+        el.textContent += t[idx];
+        idx++;
+
         feed.scrollTop = feed.scrollHeight;
-      });
+
+        if (idx >= t.length){
+          el.classList.remove('typing');
+
+          isTyping = false;
+          nextBtn.disabled = false;
+          nextBtn.style.opacity = 1;
+          nextBtn.style.cursor = "pointer";
+          return;
+        }
+
+        const ch = t[idx - 1];
+        let delay = baseDelay;
+
+        if (ch === '.' || ch === '!' || ch === '?' || ch === '\n') delay += longPause;
+        else if (ch === ',' || ch === ':' || ch === ';') delay += 90;
+
+        setTimeout(tick, delay);
+      };
+
+      requestAnimationFrame(tick);
     }
 
     function burstConfetti(power = 1){
@@ -670,6 +719,9 @@
     });
 
     function nextStep(){
+      // если идет печать — ничего не делаем
+      if (isTyping) return;
+
       haptic();
       burstConfetti(1.15);
 
